@@ -1,10 +1,9 @@
 name: parse_all
 
 on:
-  push: {}
-#  push:
-#    branches:
-#      - master
+  push:
+    branches:
+      - master
   schedule:
     - cron:  '0 * * * *'
 
