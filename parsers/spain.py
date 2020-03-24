@@ -44,7 +44,7 @@ def parse():
         fd  = io.StringIO(r.text)
         rdr = csv.reader(fd)
         hdr = next(rdr)
-        dates = [datetime.strptime(x, "%d/%m/%Y").strftime('%Y-%m-%d') for x in hdr[2:]]
+        dates = [datetime.strptime(x, "%Y-%m-%d").strftime('%Y-%m-%d') for x in hdr[2:]]
         for row in rdr:
             region   = row[1]
             for val, date in zip(row[2:], dates):
