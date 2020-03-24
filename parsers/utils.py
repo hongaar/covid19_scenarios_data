@@ -70,8 +70,11 @@ def parse_countries(index=1):
             countries[row[index]] = row[0]
     return countries
 
-def sorted_date(s):
-    return sorted(s, key=lambda d: datetime.strptime(d["time"], "%Y-%m-%d"))
+def sorted_date(s, array_index=None):
+    if array_index is None:
+        return sorted(s, key=lambda d: datetime.strptime(d["time"], "%Y-%m-%d"))
+    else:
+        return sorted(s, key=lambda d: datetime.strptime(d[array_index], "%Y-%m-%d"))
 
 def compare_day(day1, day2):
     try:
@@ -121,9 +124,10 @@ def store_tsv(regions, exceptions, source, cols):
     for region, data in regions.items():
         # region is API provided and should be sanitized before using it to construct paths for security reasons
         region = sanitize(region)
-        
+
         # If we only want to store one .tsv in the root, we signal this with exceptions['default': 'FOO.tsv']
         if  '.tsv' in exceptions['default']:
+            # TODO this is actually creating the World.tsv n times at the moment (open(,'w='), not what we really want.)
             write_tsv(exceptions['default'], ['location']+cols, flatten(regions), source)
         # For normal .tsv storage in individual regions' tsv
         elif region not in exceptions:
@@ -151,6 +155,39 @@ def list_to_dict(regions, cols):
             nk.append(nd)
         res[k] = nk
     return res
+
+def dict_to_list(regions, cols):
+    # transform a dict of lists of dicts {'USA': [{'time': '2020-03-01', 'cases': 1, ...},...]} into a dict of lists of lists {'USA':[['2020-03-01', 1, 2,...],..]} 
+    res = {}
+    for k in regions:
+        nk = []
+        for d in regions[k]:
+            nd = []
+            for c in cols:
+                if c in d:
+                    nd.append(d[c])
+                else:
+                    nd.append(None)
+            nk.append(nd)
+        res[k] = nk
+    return res
+
+def remove_country_code(regions, code):
+    # Assumes that the keys of this dict have a three letter country code prepended, and removes it. 
+    res = {}
+    for k in regions:
+        if code+'-' in k:
+            k = k[4:]
+    return res
+
+def add_country_code(regions, exceptions, code):
+    # Adds three letter code to keys of this dict
+    res = {}
+    for k in regions:
+        if not k in exceptions:
+            k = '-'.join([code,k])
+    return res
+
 
 def store_json(newdata):
     json_file = 'case-counts/case_counts.json'
@@ -207,8 +244,14 @@ def store_data(regions, exceptions, source, code='', cols=[]):
                     print(f'ERROR: You need to provide cols to store_data for the format you use. cols will indicate type of values in your inner lists. No data was stored to .tsv now!', file=sys.stderr)
                     return
             elif isinstance(cd2, dict):
-                store_json(regions)
-                # most likely, in this case exceptions['default': 'case-counts/SOMENAME.tsv'], to store in one .tsv file
+                # catch the World.tsv case
+                if not '.tsv' in exceptions['default']:
+                    regions = dict_to_list(regions, default_cols)
                 store_tsv(regions, exceptions, source, default_cols)
+                # for non-World data we need to add country code for json
+                if not '.tsv' in exceptions['default']:
+                    regions = add_country_code(regions, exceptions, code)                
+                store_json(regions)
+                
             else:
                 print(f'ERROR: unable to parse {regions}', file=sys.stderr)

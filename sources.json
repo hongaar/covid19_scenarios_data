@@ -1,4 +1,14 @@
 {
+  "brazil": {
+    "primarySource": "https://brasil.io/api/dataset/covid19/caso/data",
+    "dataProvenance": "https://brasil.io/dataset/covid19/caso",
+    "license": "Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)"
+  },
+  "france": {
+    "primarySource": "https://github.com/opencovid19-fr/data/raw/master/dist/chiffres-cles.csv",
+    "dataProvenance": "Données nationales concernant l'épidémie de COVID19",
+    "license": "Etalab Open License 2.0"
+  },
   "germany": {
     "primarySource": "https://raw.githubusercontent.com/chriswien/COVID19_CaseNumberDE/master/COVID19_Cases_Bundeslaender_DE.csv",
     "dataProvenance": "https://www.rki.de/DE/Content/InfAZ/N/Neuartiges_Coronavirus/Fallzahlen.html",
@@ -17,6 +27,11 @@
   "switzerland": {
     "primarySource": "https://raw.github.com/openZH/covid_19/master/COVID19_Cases_Cantons_CH_total.csv",
     "dataProvenance": "OpenZH",
+    "license": "none specified"
+  },
+  "canada": {
+    "primarySource": "https://github.com/ishaberry/Covid19Canada",
+    "dataProvenance": "Offical government data",
     "license": "none specified"
   },
   "unitedstates": {
